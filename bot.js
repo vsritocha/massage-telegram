@@ -1,7 +1,7 @@
+require('dotenv').config();
 const { TelegramBot } = require('node-telegram-bot-api');
 
-// ВСТАВЬ СЮДА ТОКЕН ОТ BOTFATHER
-const TOKEN = 'МОЙ ТОКЕН';
+const TOKEN = process.env.BOT_TOKEN;
 
 const bot = new TelegramBot(TOKEN, { polling: true });
 
