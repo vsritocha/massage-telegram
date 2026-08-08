@@ -1,0 +1,595 @@
+/* =========================================================
+   ОСНОВНЫЕ НАСТРОЙКИ
+========================================================= */
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+
+html,
+body {
+    width: 100%;
+    min-height: 100%;
+
+    font-family:
+        Arial,
+        Helvetica,
+        sans-serif;
+
+    background: #170d24;
+
+    color: #f5eff8;
+
+    overflow-x: hidden;
+}
+
+
+/* =========================================================
+   ОСНОВНОЙ ФОН
+========================================================= */
+
+body {
+
+    min-height: 100vh;
+
+    background:
+        radial-gradient(
+            circle at center,
+            #35204a 0%,
+            #21122f 45%,
+            #12091b 100%
+        );
+
+}
+
+
+/* =========================================================
+   МАНДАЛЫ
+
+   Исходник: 300 × 300 px
+
+   Здесь мы увеличиваем их на экране.
+
+   Левая:
+   left: -150px
+
+   Правая:
+   right: -150px
+
+   Поэтому примерно половина изображения
+   будет находиться за пределами экрана.
+========================================================= */
+
+.mandala {
+
+    position: fixed;
+
+    width: 300px;
+    height: 300px;
+
+    object-fit: contain;
+
+    opacity: 0.20;
+
+    pointer-events: none;
+
+    z-index: 1;
+
+    top: 50%;
+
+    transform-origin: center center;
+
+}
+
+
+/* ЛЕВАЯ МАНДАЛА */
+
+.mandala-left {
+
+    left: -150px;
+
+    animation:
+        rotate-left
+        45s
+        linear
+        infinite;
+
+}
+
+
+/* ПРАВАЯ МАНДАЛА */
+
+.mandala-right {
+
+    right: -150px;
+
+    animation:
+        rotate-right
+        55s
+        linear
+        infinite;
+
+}
+
+
+/* Вращение левой */
+
+@keyframes rotate-left {
+
+    from {
+        transform:
+            translateY(-50%)
+            rotate(0deg);
+    }
+
+    to {
+        transform:
+            translateY(-50%)
+            rotate(360deg);
+    }
+
+}
+
+
+/* Вращение правой */
+
+@keyframes rotate-right {
+
+    from {
+        transform:
+            translateY(-50%)
+            rotate(360deg);
+    }
+
+    to {
+        transform:
+            translateY(-50%)
+            rotate(0deg);
+    }
+
+}
+
+
+/* =========================================================
+   ЗАСТАВКА С ЛОГОТИПОМ
+========================================================= */
+
+.splash-screen {
+
+    position: fixed;
+
+    inset: 0;
+
+    z-index: 100;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    background:
+        radial-gradient(
+            circle,
+            #38204d,
+            #170d24 70%
+        );
+
+    animation:
+        splash-fade
+        1s
+        ease
+        2.2s
+        forwards;
+
+}
+
+
+/* =========================================================
+   ЛОГОТИП НА ЗАСТАВКЕ
+
+   ИСХОДНИК:
+   300 × 300 px
+
+   На экране сейчас будет примерно 180 × 180.
+========================================================= */
+
+.splash-logo {
+
+    width: 180px;
+    height: 180px;
+
+    object-fit: contain;
+
+    animation:
+        logo-appear
+        1.3s
+        ease
+        forwards;
+
+}
+
+
+/* Появление логотипа */
+
+@keyframes logo-appear {
+
+    0% {
+
+        opacity: 0;
+
+        transform:
+            scale(0.8);
+
+    }
+
+    100% {
+
+        opacity: 1;
+
+        transform:
+            scale(1);
+
+    }
+
+}
+
+
+/* Исчезновение заставки */
+
+@keyframes splash-fade {
+
+    0% {
+
+        opacity: 1;
+
+    }
+
+    70% {
+
+        opacity: 1;
+
+    }
+
+    100% {
+
+        opacity: 0;
+
+        pointer-events: none;
+
+        visibility: hidden;
+
+    }
+
+}
+
+
+/* =========================================================
+   ОСНОВНОЕ ПРИЛОЖЕНИЕ
+========================================================= */
+
+.app {
+
+    position: relative;
+
+    z-index: 5;
+
+    width: 100%;
+
+    max-width: 500px;
+
+    min-height: 100vh;
+
+    margin: 0 auto;
+
+    padding:
+
+        55px
+        20px
+        40px;
+
+    opacity: 0;
+
+    animation:
+        app-appear
+        1s
+        ease
+        2s
+        forwards;
+
+}
+
+
+/* Появление приложения */
+
+@keyframes app-appear {
+
+    from {
+
+        opacity: 0;
+
+        transform:
+            translateY(20px);
+
+    }
+
+    to {
+
+        opacity: 1;
+
+        transform:
+            translateY(0);
+
+    }
+
+}
+
+
+/* =========================================================
+   ЗАГОЛОВОК
+========================================================= */
+
+.header {
+
+    text-align: center;
+
+    margin-bottom: 30px;
+
+}
+
+
+.header h1 {
+
+    font-size: 28px;
+
+    font-weight: 400;
+
+    letter-spacing: 0.5px;
+
+}
+
+
+.subtitle {
+
+    margin-top: 8px;
+
+    font-size: 14px;
+
+    opacity: 0.65;
+
+}
+
+
+/* =========================================================
+   КАРТОЧКА ЗАПИСИ
+========================================================= */
+
+.booking-card {
+
+    padding: 24px;
+
+    border:
+
+        1px solid
+        rgba(255, 255, 255, 0.10);
+
+    border-radius: 24px;
+
+    background:
+        rgba(255, 255, 255, 0.06);
+
+    backdrop-filter:
+        blur(12px);
+
+    box-shadow:
+        0 20px 60px
+        rgba(0, 0, 0, 0.25);
+
+}
+
+
+/* =========================================================
+   ПОЛЯ
+========================================================= */
+
+.field {
+
+    margin-bottom: 18px;
+
+}
+
+
+.field label {
+
+    display: block;
+
+    margin-bottom: 7px;
+
+    font-size: 13px;
+
+    opacity: 0.7;
+
+}
+
+
+.field input,
+.field select {
+
+    width: 100%;
+
+    height: 50px;
+
+    padding:
+        0
+        15px;
+
+    border:
+        1px solid
+        rgba(255, 255, 255, 0.12);
+
+    border-radius: 14px;
+
+    outline: none;
+
+    background:
+        rgba(0, 0, 0, 0.20);
+
+    color: #ffffff;
+
+    font-size: 15px;
+
+}
+
+
+.field input::placeholder {
+
+    color:
+        rgba(255, 255, 255, 0.35);
+
+}
+
+
+/* =========================================================
+   КНОПКА
+========================================================= */
+
+.booking-button {
+
+    width: 100%;
+
+    height: 54px;
+
+    margin-top: 5px;
+
+    border: none;
+
+    border-radius: 16px;
+
+    background:
+        #9a70b8;
+
+    color: white;
+
+    font-size: 16px;
+
+    cursor: pointer;
+
+    transition:
+        transform 0.2s,
+        background 0.2s;
+
+}
+
+
+.booking-button:active {
+
+    transform:
+        scale(0.97);
+
+}
+
+
+.booking-button:hover {
+
+    background:
+        #aa82c5;
+
+}
+
+
+/* =========================================================
+   УСПЕШНАЯ ЗАПИСЬ
+========================================================= */
+
+.success {
+
+    display: none;
+
+    text-align: center;
+
+    padding: 50px 20px;
+
+}
+
+
+.success-icon {
+
+    width: 70px;
+
+    height: 70px;
+
+    margin:
+        0 auto
+        20px;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    border-radius: 50%;
+
+    background:
+        rgba(154, 112, 184, 0.25);
+
+    font-size: 30px;
+
+}
+
+
+.success h2 {
+
+    font-size: 24px;
+
+    font-weight: 400;
+
+}
+
+
+.success p {
+
+    margin-top: 12px;
+
+    font-size: 14px;
+
+    line-height: 1.5;
+
+    opacity: 0.65;
+
+}
+
+
+/* =========================================================
+   МОБИЛЬНЫЙ ЭКРАН
+========================================================= */
+
+@media (max-width: 400px) {
+
+    .app {
+
+        padding:
+            40px
+            15px
+            30px;
+
+    }
+
+
+    .booking-card {
+
+        padding: 20px;
+
+    }
+
+
+    .header h1 {
+
+        font-size: 25px;
+
+    }
+
+}

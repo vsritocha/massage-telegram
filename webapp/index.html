@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+
+    <!-- Чтобы приложение нормально выглядело на телефоне -->
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
+    >
+
+    <title>Массаж</title>
+
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+    
+
+    <img
+        src="images/mandala.png"
+        class="mandala mandala-left"
+        alt=""
+    >
+
+    <img
+        src="images/mandala.png"
+        class="mandala mandala-right"
+        alt=""
+    >
+
+
+    <
+
+    <section id="splash-screen" class="splash-screen">
+
+        <img
+            src="images/logo.png"
+            class="logo splash-logo"
+            alt="Логотип"
+        >
+
+    </section>
+
+
+    
+
+    <main id="app" class="app">
+
+        
+
+        <div class="header">
+
+          
+
+            <h1>Запись на массаж</h1>
+
+            <p class="subtitle">
+                Выберите удобное время
+            </p>
+
+        </div>
+
+
+        
+
+        <div class="booking-card">
+
+            
+
+            <div class="field">
+
+                <label for="service">
+                    Услуга
+                </label>
+
+                <select id="service">
+
+                    <option value="">
+                        Выберите услугу
+                    </option>
+
+                    <option value="massage60">
+                        Массаж спины
+                    </option>
+
+                    <option value="massage90">
+                       массаж шейно-воротниковой зоны
+                    </option>
+
+                    <option value="massage90">
+                       оздоровительный массаж
+                    </option>
+
+                    <option value="massage90">
+                       массаж ног
+                    </option>
+
+                    <option value="massage90">
+                      массаж лица
+                    </option>
+
+                    <option value="massage90">
+                       лимфодренажный массаж
+                    </option>
+
+                    <option value="massage90">
+                       классический массаж
+                    </option>
+
+                    <option value="massage90">
+                       баночный массаж
+                    </option>
+
+                </select>
+
+            </div>
+
+
+            <!-- ДАТА -->
+
+            <div class="field">
+
+                <label for="date">
+                    Дата
+                </label>
+
+                <input
+                    type="date"
+                    id="date"
+                >
+
+            </div>
+
+
+            <!-- ВРЕМЯ -->
+
+            <div class="field">
+
+                <label for="time">
+                    Время
+                </label>
+
+                <select id="time">
+
+                    <option value="">
+                        Выберите время
+                    </option>
+
+                    <option value="10:00">
+                        10:00
+                    </option>
+
+                    <option value="12:00">
+                        12:00
+                    </option>
+
+                    <option value="14:00">
+                        14:00
+                    </option>
+
+                    <option value="16:00">
+                        16:00
+                    </option>
+
+                    <option value="18:00">
+                        18:00
+                    </option>
+
+                </select>
+
+            </div>
+
+
+            <!-- ИМЯ -->
+
+            <div class="field">
+
+                <label for="name">
+                    Ваше имя
+                </label>
+
+                <input
+                    type="text"
+                    id="name"
+                    placeholder="Как к вам обращаться?"
+                >
+
+            </div>
+
+
+            <!-- ТЕЛЕФОН -->
+
+            <div class="field">
+
+                <label for="phone">
+                    Телефон
+                </label>
+
+                <input
+                    type="tel"
+                    id="phone"
+                    placeholder="+7"
+                >
+
+            </div>
+
+
+            <!-- КНОПКА -->
+
+            <button
+                id="booking-button"
+                class="booking-button"
+            >
+                Записаться
+            </button>
+
+        </div>
+
+
+        <!-- =================================================
+             ЭКРАН ПОДТВЕРЖДЕНИЯ
+
+             Пока скрыт.
+             JavaScript покажет его после нажатия кнопки.
+        ================================================== -->
+
+        <div
+            id="success"
+            class="success"
+        >
+
+            <div class="success-icon">
+                ✦
+            </div>
+
+            <h2>
+                Заявка отправлена
+            </h2>
+
+            <p>
+                Мы свяжемся с вами для подтверждения записи.
+            </p>
+
+        </div>
+
+    </main>
+
+
+    <!-- Telegram Mini App API -->
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+
+    <!-- Наш JavaScript -->
+    <script src="script.js"></script>
+
+</body>
+</html>
