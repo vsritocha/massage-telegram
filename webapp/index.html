@@ -16,9 +16,13 @@
 
 </head>
 
+
 <body>
 
-    <!-- ДЕКОР -->
+
+    <!-- =====================================================
+         ДЕКОР
+    ====================================================== -->
 
     <img
         src="images/mandala.png"
@@ -33,7 +37,9 @@
     >
 
 
-    <!-- ЗАСТАВКА -->
+    <!-- =====================================================
+         ЗАСТАВКА
+    ====================================================== -->
 
     <section
         id="splash-screen"
@@ -49,12 +55,17 @@
     </section>
 
 
-    <!-- ПРИЛОЖЕНИЕ -->
+    <!-- =====================================================
+         ПРИЛОЖЕНИЕ
+    ====================================================== -->
 
     <main
         id="app"
         class="app"
     >
+
+
+        <!-- ЗАГОЛОВОК -->
 
         <div class="header">
 
@@ -68,74 +79,212 @@
 
         </div>
 
-        <!-- DIKIDI -->
 
-        <div class="dikidi-booking">
+        <!-- =================================================
+             ФОРМА ЗАПИСИ
+        ================================================== -->
 
-            <div
-                id="dikidi-widget"
-                data-dikidi-widget="215048"
-            ></div>
+        <div class="booking-card">
+
+
+            <!-- УСЛУГА -->
+
+            <div class="field">
+
+                <label for="service">
+                    Услуга
+                </label>
+
+                <select id="service">
+
+                    <option value="">
+                        Выберите услугу
+                    </option>
+
+                    <option value="massage60">
+                        Массаж спины
+                    </option>
+
+                    <option value="massage90">
+                        Массаж шейно-воротниковой зоны
+                    </option>
+
+                    <option value="massage90">
+                        Оздоровительный массаж
+                    </option>
+
+                    <option value="massage90">
+                        Массаж ног
+                    </option>
+
+                    <option value="massage90">
+                        Массаж лица
+                    </option>
+
+                    <option value="massage90">
+                        Лимфодренажный массаж
+                    </option>
+
+                    <option value="massage90">
+                        Классический массаж
+                    </option>
+
+                    <option value="massage90">
+                        Баночный массаж
+                    </option>
+
+                </select>
+
+            </div>
+
+
+            <!-- ДАТА -->
+
+            <div class="field">
+
+                <label for="date">
+                    Дата
+                </label>
+
+                <input
+                    type="date"
+                    id="date"
+                >
+
+            </div>
+
+
+            <!-- ВРЕМЯ -->
+
+            <div class="field">
+
+                <label for="time">
+                    Время
+                </label>
+
+                <select id="time">
+
+                    <option value="">
+                        Выберите время
+                    </option>
+
+                    <option value="10:00">
+                        10:00
+                    </option>
+
+                    <option value="12:00">
+                        12:00
+                    </option>
+
+                    <option value="14:00">
+                        14:00
+                    </option>
+
+                    <option value="16:00">
+                        16:00
+                    </option>
+
+                    <option value="18:00">
+                        18:00
+                    </option>
+
+                </select>
+
+            </div>
+
+
+            <!-- ИМЯ -->
+
+            <div class="field">
+
+                <label for="name">
+                    Ваше имя
+                </label>
+
+                <input
+                    type="text"
+                    id="name"
+                    placeholder="Как к вам обращаться?"
+                >
+
+            </div>
+
+
+            <!-- ТЕЛЕФОН -->
+
+            <div class="field">
+
+                <label for="phone">
+                    Телефон
+                </label>
+
+                <input
+                    type="tel"
+                    id="phone"
+                    placeholder="+7"
+                >
+
+            </div>
+
+
+            <!-- =================================================
+                 КНОПКА
+            ================================================== -->
+
+            <button
+                type="button"
+                id="booking-button"
+                class="booking-button"
+            >
+                Записаться
+            </button>
+
 
         </div>
+
+
+        <!-- =================================================
+             УСПЕШНАЯ ЗАПИСЬ
+        ================================================== -->
+
+        <div
+            id="success"
+            class="success"
+            style="display: none;"
+        >
+
+            <div class="success-icon">
+                ✦
+            </div>
+
+            <h2>
+                Заявка отправлена
+            </h2>
+
+            <p>
+                Мы свяжемся с вами для подтверждения записи.
+            </p>
+
+        </div>
+
 
     </main>
 
 
-    <!-- TELEGRAM MINI APP -->
+    <!-- =====================================================
+         TELEGRAM MINI APP API
+    ====================================================== -->
 
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
 
 
-    <!-- DIKIDI WIDGET -->
+    <!-- =====================================================
+         ТВОЙ JAVASCRIPT
+    ====================================================== -->
 
-    <script
-        src="https://dikidi.net/assets/widget.js"
-        async
-    ></script>
+    <script src="app.js"></script>
 
-
-    <!-- SPLASH -->
-
-    <script>
-
-        window.addEventListener(
-            'load',
-            function () {
-
-                setTimeout(
-                    function () {
-
-                        const splash =
-                            document.getElementById(
-                                'splash-screen'
-                            );
-
-                        if (splash) {
-
-                            splash.style.display =
-                                'none';
-
-                        }
-
-                    },
-                    1500
-                );
-
-            }
-        );
-
-    </script>
 
 </body>
 
 </html>
-<!-- Telegram Mini App API -->
-<script src="https://telegram.org/js/telegram-web-app.js"></script>
-
-<!-- Наш JavaScript -->
-<script src="app.js"></script>
-
-</body>
-</html>
-```
