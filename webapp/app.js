@@ -13,6 +13,14 @@ const tg = window.Telegram
 if (tg) {
   tg.ready();
   tg.expand();
+
+  if (tg.setHeaderColor) {
+    tg.setHeaderColor('#170d24');
+  }
+
+  if (tg.setBackgroundColor) {
+    tg.setBackgroundColor('#170d24');
+  }
 }
 
 
@@ -46,17 +54,11 @@ const state = {
 const servicesList =
   document.getElementById('services-list');
 
-const additionalServicesList =
-  document.getElementById('additional-services-list');
-
-const durationSection =
-  document.getElementById('duration-section');
-
-const additionalSection =
-  document.getElementById('additional-section');
-
 const serviceNext =
   document.getElementById('service-next');
+
+const additionalButton =
+  document.getElementById('additional-service');
 
 const bookingDate =
   document.getElementById('booking-date');
@@ -70,11 +72,11 @@ const timeNext =
 const bookingForm =
   document.getElementById('booking-form');
 
-const bookingSubmit =
-  document.getElementById('booking-submit');
-
 const errorMessage =
   document.getElementById('error-message');
+
+const durationButtons =
+  document.querySelectorAll('.duration-card');
 
 
 /* =========================
@@ -89,9 +91,9 @@ document.addEventListener(
 
     setMinDate();
 
-    loadServices();
-
     setupEvents();
+
+    loadServices();
 
   }
 );
@@ -132,6 +134,10 @@ function initTelegramUser() {
 
 function setMinDate() {
 
+  if (!bookingDate) {
+    return;
+  }
+
   const now = new Date();
 
   const year =
@@ -146,16 +152,17 @@ function setMinDate() {
       .padStart(2, '0');
 
   const today =
-    year + '-' + month + '-' + day;
+    year +
+    '-' +
+    month +
+    '-' +
+    day;
 
   bookingDate.min = today;
 
-  /*
-   * Сразу ставим сегодняшнюю дату.
-   * Сервер сам решит, какие времена
-   * доступны сегодня.
-   */
   bookingDate.value = today;
+
+  state.selectedDate = today;
 
 }
 
@@ -166,73 +173,144 @@ function setMinDate() {
 
 function setupEvents() {
 
-  bookingDate.addEventListener(
-    'change',
-    function () {
+  /* ДАТА */
 
-      state.selectedDate =
-        bookingDate.value;
+  if (bookingDate) {
 
-      state.selectedTime = '';
+    bookingDate.addEventListener(
+      'change',
+      function () {
 
-      timeNext.disabled = true;
+        state.selectedDate =
+          bookingDate.value;
 
-      loadSchedule();
+        state.selectedTime = '';
 
-    }
-  );
+        if (timeNext) {
+          timeNext.disabled = true;
+        }
 
+        loadSchedule();
 
-  serviceNext.addEventListener(
-    'click',
-    function () {
-
-      if (
-        !state.selectedService ||
-        !state.selectedDuration
-      ) {
-        return;
       }
+    );
 
-      showScreen('screen-time');
+  }
 
-      updateProgress(2);
 
-      updateServiceSummary();
+  /* ДЛИТЕЛЬНОСТЬ */
 
-      state.selectedDate =
-        bookingDate.value;
+  durationButtons.forEach(
+    function (button) {
 
-      loadSchedule();
+      button.addEventListener(
+        'click',
+        function () {
+
+          const duration =
+            Number(
+              button.dataset.duration
+            );
+
+          selectDuration(duration);
+
+        }
+      );
 
     }
   );
 
 
-  timeNext.addEventListener(
-    'click',
-    function () {
+  /* ДОПОЛНИТЕЛЬНАЯ УСЛУГА */
 
-      if (
-        !state.selectedDate ||
-        !state.selectedTime
-      ) {
-        return;
+  if (additionalButton) {
+
+    additionalButton.addEventListener(
+      'click',
+      function () {
+
+        toggleAdditionalService();
+
       }
+    );
 
-      prepareDetailsScreen();
-
-      showScreen('screen-details');
-
-      updateProgress(3);
-
-    }
-  );
+  }
 
 
-  document
-    .getElementById('back-to-service')
-    .addEventListener(
+  /* ДАЛЕЕ ПОСЛЕ УСЛУГИ */
+
+  if (serviceNext) {
+
+    serviceNext.addEventListener(
+      'click',
+      function () {
+
+        if (
+          !state.selectedService ||
+          !state.selectedDuration
+        ) {
+          showError(
+            'Выберите услугу и длительность'
+          );
+
+          return;
+        }
+
+        showScreen('screen-time');
+
+        updateProgress(2);
+
+        updateServiceSummary();
+
+        loadSchedule();
+
+      }
+    );
+
+  }
+
+
+  /* ДАЛЕЕ ПОСЛЕ ВРЕМЕНИ */
+
+  if (timeNext) {
+
+    timeNext.addEventListener(
+      'click',
+      function () {
+
+        if (
+          !state.selectedDate ||
+          !state.selectedTime
+        ) {
+          showError(
+            'Выберите время'
+          );
+
+          return;
+        }
+
+        prepareDetailsScreen();
+
+        showScreen('screen-details');
+
+        updateProgress(3);
+
+      }
+    );
+
+  }
+
+
+  /* НАЗАД К УСЛУГЕ */
+
+  const backToService =
+    document.querySelector(
+      '[data-back="service"]'
+    );
+
+  if (backToService) {
+
+    backToService.addEventListener(
       'click',
       function () {
 
@@ -243,10 +321,19 @@ function setupEvents() {
       }
     );
 
+  }
 
-  document
-    .getElementById('back-to-time')
-    .addEventListener(
+
+  /* НАЗАД К ВРЕМЕНИ */
+
+  const backToTime =
+    document.querySelector(
+      '[data-back="time"]'
+    );
+
+  if (backToTime) {
+
+    backToTime.addEventListener(
       'click',
       function () {
 
@@ -257,11 +344,19 @@ function setupEvents() {
       }
     );
 
+  }
 
-  bookingForm.addEventListener(
-    'submit',
-    submitBooking
-  );
+
+  /* ФОРМА */
+
+  if (bookingForm) {
+
+    bookingForm.addEventListener(
+      'submit',
+      submitBooking
+    );
+
+  }
 
 }
 
@@ -274,48 +369,82 @@ async function loadServices() {
 
   try {
 
-    showLoading(
-      servicesList,
-      'Загрузка услуг...'
-    );
+    if (servicesList) {
+
+      servicesList.innerHTML =
+        '<div class="empty-state">' +
+        'Загрузка услуг...' +
+        '</div>';
+
+    }
 
     const response =
       await fetch(
-        API_URL + '?action=getServices'
+        API_URL +
+        '?action=getServices&ts=' +
+        Date.now()
       );
+
+    if (!response.ok) {
+
+      throw new Error(
+        'Ошибка соединения с сервером'
+      );
+
+    }
 
     const data =
       await response.json();
 
+    console.log(
+      'Ответ getServices:',
+      data
+    );
+
     if (!data.success) {
+
       throw new Error(
         data.message ||
         'Не удалось загрузить услуги'
       );
+
     }
 
     state.services =
-      data.services || [];
+      Array.isArray(data.services)
+        ? data.services
+        : [];
 
     state.additionalServices =
-      data.additionalServices || [];
+      Array.isArray(data.additionalServices)
+        ? data.additionalServices
+        : [];
 
     renderServices();
 
-    renderAdditionalServices();
+    renderAdditionalService();
 
   } catch (error) {
+
+    console.error(
+      'Ошибка загрузки услуг:',
+      error
+    );
+
+    if (servicesList) {
+
+      servicesList.innerHTML =
+        '<div class="empty-state">' +
+        'Не удалось загрузить услуги.<br>' +
+        'Попробуйте открыть приложение ещё раз.' +
+        '</div>';
+
+    }
 
     showError(
       error.message ||
       'Ошибка загрузки услуг'
     );
-
-    servicesList.innerHTML =
-      '<div class="empty-state">' +
-      'Не удалось загрузить услуги.<br>' +
-      'Попробуйте открыть приложение ещё раз.' +
-      '</div>';
 
   }
 
@@ -327,6 +456,10 @@ async function loadServices() {
 ========================= */
 
 function renderServices() {
+
+  if (!servicesList) {
+    return;
+  }
 
   servicesList.innerHTML = '';
 
@@ -358,17 +491,19 @@ function renderServices() {
         state.selectedService.name ===
         service.name
       ) {
-        button.classList.add('selected');
+
+        button.classList.add(
+          'selected'
+        );
+
       }
 
 
       button.innerHTML =
-        '<div class="service-info">' +
-
-          '<div class="service-name">' +
-            escapeHtml(service.name) +
-          '</div>' +
-
+        '<div class="service-name">' +
+          escapeHtml(
+            service.name
+          ) +
         '</div>' +
 
         '<div class="service-price">' +
@@ -392,7 +527,9 @@ function renderServices() {
       );
 
 
-      servicesList.appendChild(button);
+      servicesList.appendChild(
+        button
+      );
 
     }
   );
@@ -421,19 +558,14 @@ function selectService(service) {
 
   renderServices();
 
-  renderAdditionalServices();
-
   renderDurations();
 
-  durationSection.classList.remove(
-    'hidden'
-  );
+  renderAdditionalService();
 
-  additionalSection.classList.remove(
-    'hidden'
-  );
 
-  serviceNext.disabled = true;
+  if (serviceNext) {
+    serviceNext.disabled = true;
+  }
 
 }
 
@@ -443,12 +575,6 @@ function selectService(service) {
 ========================= */
 
 function renderDurations() {
-
-  const durationButtons =
-    document.querySelectorAll(
-      '.duration-card'
-    );
-
 
   durationButtons.forEach(
     function (button) {
@@ -461,10 +587,12 @@ function renderDurations() {
 
       const allowed =
         state.selectedService &&
-        state.selectedService.durations &&
-        state.selectedService.durations.includes(
-          duration
-        );
+        Array.isArray(
+          state.selectedService.durations
+        ) &&
+        state.selectedService.durations
+          .map(Number)
+          .includes(duration);
 
 
       if (!allowed) {
@@ -473,6 +601,10 @@ function renderDurations() {
 
         button.classList.add(
           'disabled'
+        );
+
+        button.classList.remove(
+          'selected'
         );
 
         return;
@@ -492,14 +624,6 @@ function renderDurations() {
         state.selectedDuration === duration
       );
 
-
-      button.onclick =
-        function () {
-
-          selectDuration(duration);
-
-        };
-
     }
   );
 
@@ -512,15 +636,45 @@ function renderDurations() {
 
 function selectDuration(duration) {
 
+  if (!state.selectedService) {
+
+    showError(
+      'Сначала выберите услугу'
+    );
+
+    return;
+
+  }
+
+
+  const allowed =
+    Array.isArray(
+      state.selectedService.durations
+    ) &&
+    state.selectedService.durations
+      .map(Number)
+      .includes(duration);
+
+
+  if (!allowed) {
+    return;
+  }
+
+
   state.selectedDuration =
     duration;
 
   state.selectedTime =
     '';
 
-  serviceNext.disabled =
-    !state.selectedService ||
-    !state.selectedDuration;
+
+  if (serviceNext) {
+
+    serviceNext.disabled =
+      !state.selectedService ||
+      !state.selectedDuration;
+
+  }
 
 
   renderDurations();
@@ -529,82 +683,54 @@ function selectDuration(duration) {
 
 
 /* =========================
-   ДОПОЛНИТЕЛЬНЫЕ УСЛУГИ
+   ДОПОЛНИТЕЛЬНАЯ УСЛУГА
 ========================= */
 
-function renderAdditionalServices() {
+function renderAdditionalService() {
 
-  additionalServicesList.innerHTML = '';
-
-  if (!state.additionalServices.length) {
+  if (!additionalButton) {
     return;
   }
 
 
-  state.additionalServices.forEach(
-    function (service) {
-
-      const button =
-        document.createElement('button');
-
-      button.type = 'button';
-
-      button.className =
-        'additional-card';
+  const service =
+    state.additionalServices.length
+      ? state.additionalServices[0]
+      : {
+          name: 'Горячие камни',
+          price: '000 ₽'
+        };
 
 
-      if (
-        state.selectedAdditionalService &&
-        state.selectedAdditionalService.name ===
-        service.name
-      ) {
-        button.classList.add(
-          'selected'
-        );
-      }
+  const name =
+    service.name ||
+    'Горячие камни';
 
 
-      button.innerHTML =
-        '<div class="additional-info">' +
-
-          '<div class="additional-name">' +
-            escapeHtml(service.name) +
-          '</div>' +
-
-          '<div class="additional-subtitle">' +
-            'Дополнительная услуга' +
-          '</div>' +
-
-        '</div>' +
-
-        '<div class="additional-price">' +
-          escapeHtml(
-            service.price || '000 ₽'
-          ) +
-        '</div>' +
-
-        '<div class="additional-check">' +
-          '✓' +
-        '</div>';
+  const price =
+    service.price ||
+    '000 ₽';
 
 
-      button.addEventListener(
-        'click',
-        function () {
+  additionalButton.innerHTML =
+    '<div class="additional-info">' +
 
-          toggleAdditionalService(
-            service
-          );
+      '<span class="additional-name">' +
+        escapeHtml(name) +
+      '</span>' +
 
-        }
-      );
+      '<span class="additional-price">' +
+        escapeHtml(price) +
+      '</span>' +
+
+    '</div>' +
+
+    '<span class="check-icon">✓</span>';
 
 
-      additionalServicesList.appendChild(
-        button
-      );
-
-    }
+  additionalButton.classList.toggle(
+    'selected',
+    !!state.selectedAdditionalService
   );
 
 }
@@ -614,14 +740,10 @@ function renderAdditionalServices() {
    ВЫБОР ДОП. УСЛУГИ
 ========================= */
 
-function toggleAdditionalService(
-  service
-) {
+function toggleAdditionalService() {
 
   if (
-    state.selectedAdditionalService &&
-    state.selectedAdditionalService.name ===
-    service.name
+    state.selectedAdditionalService
   ) {
 
     state.selectedAdditionalService =
@@ -630,12 +752,16 @@ function toggleAdditionalService(
   } else {
 
     state.selectedAdditionalService =
-      service;
+      state.additionalServices[0] ||
+      {
+        name: 'Горячие камни',
+        price: '000 ₽'
+      };
 
   }
 
 
-  renderAdditionalServices();
+  renderAdditionalService();
 
 }
 
@@ -651,25 +777,36 @@ async function loadSchedule() {
     !state.selectedDuration
   ) {
 
-    timesList.innerHTML =
-      '<div class="empty-state">' +
-      'Выберите дату' +
-      '</div>';
+    if (timesList) {
+
+      timesList.innerHTML =
+        '<div class="no-times">' +
+        'Выберите услугу, длительность и дату.' +
+        '</div>';
+
+    }
 
     return;
 
   }
 
 
-  state.selectedTime = '';
+  state.selectedTime =
+    '';
 
-  timeNext.disabled = true;
+  if (timeNext) {
+    timeNext.disabled = true;
+  }
 
 
-  timesList.innerHTML =
-    '<div class="loading">' +
-    'Загрузка свободного времени...' +
-    '</div>';
+  if (timesList) {
+
+    timesList.innerHTML =
+      '<div class="no-times">' +
+      'Загрузка свободного времени...' +
+      '</div>';
+
+  }
 
 
   try {
@@ -686,11 +823,22 @@ async function loadSchedule() {
       '&duration=' +
       encodeURIComponent(
         state.selectedDuration
-      );
+      ) +
+      '&ts=' +
+      Date.now();
 
 
     const response =
       await fetch(url);
+
+
+    if (!response.ok) {
+
+      throw new Error(
+        'Ошибка загрузки расписания'
+      );
+
+    }
 
 
     const data =
@@ -714,11 +862,22 @@ async function loadSchedule() {
 
   } catch (error) {
 
-    timesList.innerHTML =
-      '<div class="empty-state">' +
-      'Не удалось загрузить время.<br>' +
-      'Попробуйте выбрать дату ещё раз.' +
-      '</div>';
+    console.error(
+      'Ошибка расписания:',
+      error
+    );
+
+
+    if (timesList) {
+
+      timesList.innerHTML =
+        '<div class="no-times">' +
+        'Не удалось загрузить время.<br>' +
+        'Попробуйте выбрать дату ещё раз.' +
+        '</div>';
+
+    }
+
 
     showError(
       error.message ||
@@ -736,13 +895,18 @@ async function loadSchedule() {
 
 function renderTimes(times) {
 
+  if (!timesList) {
+    return;
+  }
+
+
   timesList.innerHTML = '';
 
 
   if (!times.length) {
 
     timesList.innerHTML =
-      '<div class="empty-state">' +
+      '<div class="no-times">' +
       'На выбранную дату свободного времени нет.' +
       '</div>';
 
@@ -779,7 +943,9 @@ function renderTimes(times) {
       );
 
 
-      timesList.appendChild(button);
+      timesList.appendChild(
+        button
+      );
 
     }
   );
@@ -818,8 +984,9 @@ function selectTime(
   );
 
 
-  timeNext.disabled =
-    false;
+  if (timeNext) {
+    timeNext.disabled = false;
+  }
 
 }
 
@@ -830,18 +997,19 @@ function selectTime(
 
 function updateServiceSummary() {
 
-  if (!state.selectedService) {
+  const summary =
+    document.getElementById(
+      'selected-service-summary'
+    );
+
+  if (!summary || !state.selectedService) {
     return;
   }
 
 
-  document.getElementById(
-    'selected-service-name'
-  ).textContent =
-    state.selectedService.name;
-
-
-  let details =
+  let text =
+    state.selectedService.name +
+    ' · ' +
     state.selectedDuration +
     ' ' +
     getHourWord(
@@ -851,77 +1019,93 @@ function updateServiceSummary() {
 
   if (state.selectedAdditionalService) {
 
-    details +=
+    text +=
       ' · ' +
       state.selectedAdditionalService.name;
 
   }
 
 
-  document.getElementById(
-    'selected-service-details'
-  ).textContent =
-    details;
+  summary.innerHTML =
+    '<div class="summary-row">' +
+
+      '<span class="summary-label">' +
+        'Выбрано' +
+      '</span>' +
+
+      '<span class="summary-value">' +
+        escapeHtml(text) +
+      '</span>' +
+
+    '</div>';
 
 }
 
 
 function prepareDetailsScreen() {
 
-  document.getElementById(
-    'summary-service'
-  ).textContent =
-    state.selectedService.name;
+  const summary =
+    document.getElementById(
+      'booking-summary'
+    );
+
+  if (!summary) {
+    return;
+  }
 
 
-  document.getElementById(
-    'summary-duration'
-  ).textContent =
-    state.selectedDuration +
-    ' ' +
-    getHourWord(
-      state.selectedDuration
+  let html = '';
+
+
+  html +=
+    createSummaryRow(
+      'Услуга',
+      state.selectedService
+        ? state.selectedService.name
+        : ''
     );
 
 
-  const additionalRow =
-    document.getElementById(
-      'summary-additional-row'
+  html +=
+    createSummaryRow(
+      'Длительность',
+      state.selectedDuration +
+      ' ' +
+      getHourWord(
+        state.selectedDuration
+      )
     );
 
 
   if (state.selectedAdditionalService) {
 
-    document.getElementById(
-      'summary-additional'
-    ).textContent =
-      state.selectedAdditionalService.name;
-
-    additionalRow.classList.remove(
-      'hidden'
-    );
-
-  } else {
-
-    additionalRow.classList.add(
-      'hidden'
-    );
+    html +=
+      createSummaryRow(
+        'Дополнительно',
+        state.selectedAdditionalService.name
+      );
 
   }
 
 
-  document.getElementById(
-    'summary-date'
-  ).textContent =
-    formatDateForDisplay(
-      state.selectedDate
+  html +=
+    createSummaryRow(
+      'Дата',
+      formatDateForDisplay(
+        state.selectedDate
+      )
     );
 
 
-  document.getElementById(
-    'summary-time'
-  ).textContent =
-    getTimeRange();
+  html +=
+    createSummaryRow(
+      'Время',
+      getTimeRange()
+    );
+
+
+  summary.innerHTML =
+    html;
 
 }
 
@@ -938,10 +1122,25 @@ async function submitBooking(
 
 
   const nameInput =
-    document.getElementById('name');
+    document.getElementById(
+      'client-name'
+    );
 
   const phoneInput =
-    document.getElementById('phone');
+    document.getElementById(
+      'client-phone'
+    );
+
+
+  if (!nameInput || !phoneInput) {
+
+    showError(
+      'Не найдены поля для ввода данных'
+    );
+
+    return;
+
+  }
 
 
   state.name =
@@ -993,11 +1192,21 @@ async function submitBooking(
   }
 
 
-  bookingSubmit.disabled =
-    true;
+  const submitButton =
+    bookingForm.querySelector(
+      'button[type="submit"]'
+    );
 
-  bookingSubmit.textContent =
-    'Создание записи...';
+
+  if (submitButton) {
+
+    submitButton.disabled =
+      true;
+
+    submitButton.textContent =
+      'Создание записи...';
+
+  }
 
 
   try {
@@ -1052,7 +1261,9 @@ async function submitBooking(
           },
 
           body:
-            JSON.stringify(payload)
+            JSON.stringify(
+              payload
+            )
         }
       );
 
@@ -1078,17 +1289,27 @@ async function submitBooking(
 
   } catch (error) {
 
+    console.error(
+      'Ошибка создания записи:',
+      error
+    );
+
+
     showError(
       error.message ||
       'Не удалось создать запись'
     );
 
 
-    bookingSubmit.disabled =
-      false;
+    if (submitButton) {
 
-    bookingSubmit.textContent =
-      'Подтвердить запись';
+      submitButton.disabled =
+        false;
+
+      submitButton.textContent =
+        'Подтвердить запись';
+
+    }
 
   }
 
@@ -1101,24 +1322,68 @@ async function submitBooking(
 
 function showSuccess(data) {
 
-  document.getElementById(
-    'success-service'
-  ).textContent =
-    state.selectedService.name;
-
-
-  document.getElementById(
-    'success-date'
-  ).textContent =
-    formatDateForDisplay(
-      state.selectedDate
+  const details =
+    document.getElementById(
+      'success-details'
     );
 
 
-  document.getElementById(
-    'success-time'
-  ).textContent =
-    getTimeRange();
+  if (details) {
+
+    let html = '';
+
+
+    html +=
+      createSummaryRow(
+        'Услуга',
+        state.selectedService
+          ? state.selectedService.name
+          : ''
+      );
+
+
+    html +=
+      createSummaryRow(
+        'Длительность',
+        state.selectedDuration +
+        ' ' +
+        getHourWord(
+          state.selectedDuration
+        )
+      );
+
+
+    if (state.selectedAdditionalService) {
+
+      html +=
+        createSummaryRow(
+          'Дополнительно',
+          state.selectedAdditionalService.name
+        );
+
+    }
+
+
+    html +=
+      createSummaryRow(
+        'Дата',
+        formatDateForDisplay(
+          state.selectedDate
+        )
+      );
+
+
+    html +=
+      createSummaryRow(
+        'Время',
+        getTimeRange()
+      );
+
+
+    details.innerHTML =
+      html;
+
+  }
 
 
   showScreen(
@@ -1199,7 +1464,7 @@ function updateProgress(step) {
 
 
 /* =========================
-   ВСПОМОГАТЕЛЬНОЕ
+   ВСПОМОГАТЕЛЬНЫЕ
 ========================= */
 
 function formatDateForServer(
@@ -1266,7 +1531,9 @@ function getTimeRange() {
     !state.selectedTime ||
     !state.selectedDuration
   ) {
+
     return state.selectedTime || '';
+
   }
 
 
@@ -1284,7 +1551,10 @@ function getTimeRange() {
 
 
   const hours =
-    Math.floor(minutes / 60);
+    Math.floor(
+      minutes / 60
+    );
+
 
   const mins =
     minutes % 60;
@@ -1309,22 +1579,31 @@ function getHourWord(
   number
 ) {
 
-  return number === 1
+  return Number(number) === 1
     ? 'час'
     : 'часа';
 
 }
 
 
-function showLoading(
-  element,
-  text
+function createSummaryRow(
+  label,
+  value
 ) {
 
-  element.innerHTML =
-    '<div class="loading">' +
-    escapeHtml(text) +
-    '</div>';
+  return (
+    '<div class="summary-row">' +
+
+      '<span class="summary-label">' +
+        escapeHtml(label) +
+      '</span>' +
+
+      '<span class="summary-value">' +
+        escapeHtml(value) +
+      '</span>' +
+
+    '</div>'
+  );
 
 }
 
@@ -1332,6 +1611,11 @@ function showLoading(
 function showError(
   message
 ) {
+
+  if (!errorMessage) {
+    return;
+  }
+
 
   errorMessage.textContent =
     message;
