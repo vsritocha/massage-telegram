@@ -1,17 +1,12 @@
 {
-  "name": "massage_telegram",
+  "name": "massage-mini-app",
   "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "description": "Telegram Mini App for massage booking",
+  "main": "server.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "node server.js"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "type": "commonjs",
   "dependencies": {
-    "dotenv": "^17.4.2",
-    "node-telegram-bot-api": "^1.2.0"
+    "express": "^4.21.2"
   }
 }

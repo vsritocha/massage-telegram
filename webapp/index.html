@@ -1,25 +1,20 @@
 <!DOCTYPE html>
 <html lang="ru">
-
 <head>
-
     <meta charset="UTF-8">
-
     <meta
         name="viewport"
         content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
     >
+    <title>Запись на массаж</title>
 
-    <title>Массаж</title>
-
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <link rel="stylesheet" href="style.css">
-
 </head>
 
 <body>
 
     <!-- МАНДАЛЫ -->
-
     <img
         src="images/mandala.png"
         class="mandala mandala-left"
@@ -32,78 +27,280 @@
         alt=""
     >
 
-
     <!-- ЗАСТАВКА -->
-
-    <section
-        id="splash-screen"
-        class="splash-screen"
-    >
-
+    <section id="splash-screen" class="splash-screen">
         <img
             src="images/logo.png"
             class="logo splash-logo"
             alt="Логотип"
         >
-
     </section>
 
-
     <!-- ПРИЛОЖЕНИЕ -->
+    <main id="app" class="app">
 
-    <main
-        id="app"
-        class="app"
-    >
+        <header class="app-header">
+            <img
+                src="images/logo.png"
+                class="header-logo"
+                alt="Логотип"
+            >
 
-        <div class="header">
+            <div class="header-title">
+                <h1>Запись на массаж</h1>
+                <p>Выберите услугу и удобное время</p>
+            </div>
+        </header>
 
-            <h1>
-                Запись на массаж
-            </h1>
+        <!-- ПРОГРЕСС -->
+        <div class="progress">
+            <div class="progress-step active" data-step="1">
+                <span>1</span>
+                <small>Услуга</small>
+            </div>
 
-            <p class="subtitle">
-                Выберите удобное время
-            </p>
+            <div class="progress-line"></div>
 
+            <div class="progress-step" data-step="2">
+                <span>2</span>
+                <small>Время</small>
+            </div>
+
+            <div class="progress-line"></div>
+
+            <div class="progress-step" data-step="3">
+                <span>3</span>
+                <small>Данные</small>
+            </div>
         </div>
 
+        <!-- ЭКРАН УСЛУГИ -->
+        <section id="screen-service" class="screen active">
 
-        <!-- DIKIDI -->
+            <div class="section-title">
+                <h2>Выберите услугу</h2>
+                <p>Что хотите забронировать?</p>
+            </div>
 
-        <div class="booking-card">
+            <div id="services-list" class="services-list"></div>
 
-            <h2>
-                Онлайн-запись
-            </h2>
+            <!-- ДЛИТЕЛЬНОСТЬ -->
+            <div class="duration-section">
+                <div class="section-title compact">
+                    <h2>Длительность</h2>
+                    <p>Выберите продолжительность</p>
+                </div>
 
-            <p>
-                Выберите услугу, дату и удобное время
-            </p>
+                <div class="duration-list">
+                    <button
+                        type="button"
+                        class="duration-card"
+                        data-duration="1"
+                    >
+                        <span class="duration-number">1</span>
+                        <span class="duration-text">час</span>
+                    </button>
+
+                    <button
+                        type="button"
+                        class="duration-card"
+                        data-duration="2"
+                    >
+                        <span class="duration-number">2</span>
+                        <span class="duration-text">часа</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- ДОПОЛНИТЕЛЬНАЯ УСЛУГА -->
+            <div class="additional-section">
+                <div class="section-title compact">
+                    <h2>Дополнительно</h2>
+                    <p>Можно добавить к массажу</p>
+                </div>
+
+                <button
+                    type="button"
+                    id="additional-service"
+                    class="additional-card"
+                >
+                    <div class="additional-info">
+                        <span class="additional-name">
+                            Горячие камни
+                        </span>
+
+                        <span class="additional-price">
+                            000 ₽
+                        </span>
+                    </div>
+
+                    <span class="check-icon">✓</span>
+                </button>
+            </div>
 
             <button
                 type="button"
-                id="booking-button"
-                class="booking-button"
+                id="service-next"
+                class="primary-button"
             >
-                Записаться
+                Выбрать дату
             </button>
 
-        </div>
+        </section>
 
+        <!-- ЭКРАН ВРЕМЕНИ -->
+        <section id="screen-time" class="screen">
+
+            <button
+                type="button"
+                class="back-button"
+                data-back="service"
+            >
+                ← Назад
+            </button>
+
+            <div class="section-title">
+                <h2>Выберите дату</h2>
+                <p>После выбора даты появится доступное время</p>
+            </div>
+
+            <div id="selected-service-summary" class="selected-summary"></div>
+
+            <div class="date-field">
+                <label for="booking-date">Дата</label>
+
+                <input
+                    type="date"
+                    id="booking-date"
+                    autocomplete="off"
+                >
+            </div>
+
+            <div class="section-title compact times-title">
+                <h2>Свободное время</h2>
+                <p>Шаг записи — 5 минут</p>
+            </div>
+
+            <div id="times-list" class="times-list"></div>
+
+            <button
+                type="button"
+                id="time-next"
+                class="primary-button"
+            >
+                Продолжить
+            </button>
+
+        </section>
+
+        <!-- ЭКРАН ДАННЫХ -->
+        <section id="screen-details" class="screen">
+
+            <button
+                type="button"
+                class="back-button"
+                data-back="time"
+            >
+                ← Назад
+            </button>
+
+            <div class="section-title">
+                <h2>Ваши данные</h2>
+                <p>Осталось совсем немного</p>
+            </div>
+
+            <div id="booking-summary" class="booking-summary"></div>
+
+            <form id="booking-form">
+
+                <div class="form-group">
+                    <label for="client-name">Ваше имя</label>
+
+                    <input
+                        type="text"
+                        id="client-name"
+                        name="name"
+                        placeholder="Введите имя"
+                        autocomplete="name"
+                        required
+                    >
+                </div>
+
+                <div class="form-group">
+                    <label for="client-phone">
+                        Номер телефона
+                    </label>
+
+                    <input
+                        type="tel"
+                        id="client-phone"
+                        name="phone"
+                        placeholder="+7 900 000-00-00"
+                        autocomplete="tel"
+                        required
+                    >
+                </div>
+
+                <button
+                    type="submit"
+                    class="primary-button"
+                >
+                    Подтвердить запись
+                </button>
+
+            </form>
+
+        </section>
+
+        <!-- УСПЕШНАЯ ЗАПИСЬ -->
+        <section id="screen-success" class="screen success-screen">
+
+            <div class="success-icon">✓</div>
+
+            <div class="section-title">
+                <h2>Запись подтверждена!</h2>
+                <p>Ждём вас на массаже</p>
+            </div>
+
+            <div id="success-details" class="success-details"></div>
+
+        </section>
+
+        <!-- ОШИБКА -->
+        <div
+            id="error-message"
+            class="error-message hidden"
+        ></div>
+
+        <!-- ЗАГРУЗКА -->
+        <div
+            id="loading"
+            class="loading hidden"
+        >
+            <div class="loader"></div>
+            <span>Загрузка...</span>
+        </div>
 
     </main>
 
-
-    <!-- TELEGRAM -->
-
-    <script src="https://telegram.org/js/telegram-web-app.js"></script>
-
-    <!-- ТВОЙ JS -->
-
     <script src="app.js"></script>
 
+    <script>
+        /*
+         * Заставка автоматически исчезает.
+         * Сам app.js при этом не меняем.
+         */
+        window.addEventListener('load', function () {
+            setTimeout(function () {
+                var splash = document.getElementById('splash-screen');
+
+                if (splash) {
+                    splash.classList.add('hidden');
+                }
+            }, 1400);
+        });
+    </script>
 
 </body>
-
 </html>
+```
